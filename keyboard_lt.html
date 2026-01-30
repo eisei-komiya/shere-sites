@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>キーボードの話</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+      background: #1a1a2e;
+      color: #eee;
+    }
+
+    .slide {
+      width: 100%;
+      min-height: 100vh;
+      padding: 60px 80px;
+      display: flex;
+      flex-direction: column;
+      border-bottom: 1px solid #333;
+    }
+
+    h1 {
+      font-size: 3.5rem;
+      margin-bottom: 50px;
+      color: #fff;
+      border-bottom: 3px solid #4fc3f7;
+      padding-bottom: 15px;
+    }
+
+    h2 {
+      font-size: 2.2rem;
+      margin-bottom: 25px;
+      color: #4fc3f7;
+    }
+
+    ul {
+      font-size: 2rem;
+      line-height: 2;
+      margin-left: 50px;
+    }
+
+    li {
+      margin-bottom: 10px;
+    }
+
+    strong {
+      color: #4fc3f7;
+    }
+
+    /* タイトルスライド */
+    .slide.title {
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .slide.title h1 {
+      font-size: 5rem;
+      border: none;
+      margin-bottom: 20px;
+    }
+
+    /* 2カラムレイアウト */
+    .columns {
+      display: flex;
+      gap: 60px;
+      align-items: flex-start;
+      flex: 1;
+    }
+
+    .columns .left {
+      flex: 1;
+    }
+
+    .columns .right {
+      flex-shrink: 0;
+    }
+
+    .columns .right img {
+      max-height: 400px;
+      border-radius: 10px;
+    }
+
+    /* テーブル */
+    table {
+      font-size: 1.8rem;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+
+    th, td {
+      padding: 20px 30px;
+      text-align: left;
+      border-bottom: 1px solid #444;
+    }
+
+    th {
+      background: #2a2a4a;
+      color: #4fc3f7;
+    }
+
+    /* タイムライン */
+    .timeline {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      position: relative;
+      margin: 20px 0 30px;
+      padding: 0 20px;
+    }
+
+    .timeline-line {
+      position: absolute;
+      top: 260px;
+      left: 40px;
+      right: 40px;
+      height: 6px;
+      background: linear-gradient(90deg, #ff6b6b, #4fc3f7, #4fc3f7, #4fc3f7);
+      z-index: 0;
+    }
+
+    .timeline-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      max-width: 320px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .timeline-item img {
+      width: 320px;
+      height: 220px;
+      object-fit: cover;
+      border-radius: 12px;
+      border: 3px solid #4fc3f7;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(79, 195, 247, 0.3);
+    }
+
+    .timeline-item.origin img {
+      border-color: #ff6b6b;
+      box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+    }
+
+    .timeline-node {
+      width: 20px;
+      height: 20px;
+      background: #4fc3f7;
+      border-radius: 50%;
+      margin-bottom: 15px;
+      z-index: 2;
+    }
+
+    .timeline-item.origin .timeline-node {
+      width: 24px;
+      height: 24px;
+      background: #ff6b6b;
+    }
+
+    .timeline-label {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .timeline-desc {
+      font-size: 1.4rem;
+      color: #aaa;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    /* 共通点 */
+    .highlight-box {
+      background: #2a2a4a;
+      padding: 25px 35px;
+      border-radius: 10px;
+      border-left: 5px solid #4fc3f7;
+      font-size: 1.8rem;
+      margin-top: 30px;
+    }
+
+    /* 終了スライド */
+    .slide.end {
+      justify-content: center;
+      align-items: center;
+    }
+
+    .slide.end h1 {
+      font-size: 3rem;
+      border: none;
+      text-align: center;
+    }
+
+    /* ツールカード */
+    .tool-cards {
+      display: flex;
+      gap: 30px;
+      margin-top: 20px;
+    }
+
+    .tool-cards.single {
+      justify-content: center;
+    }
+
+    .tool-card {
+      background: #2a2a4a;
+      border-radius: 15px;
+      overflow: hidden;
+      flex: 1;
+      max-width: 320px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      transition: transform 0.2s;
+    }
+
+    .tool-card.wide {
+      max-width: 500px;
+    }
+
+    .tool-card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border-bottom: 3px solid #4fc3f7;
+    }
+
+    .tool-info {
+      padding: 20px;
+      text-align: center;
+    }
+
+    .tool-name {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #4fc3f7;
+      margin-bottom: 10px;
+    }
+
+    .tool-desc {
+      font-size: 1.2rem;
+      color: #ccc;
+      line-height: 1.6;
+    }
+
+    /* スタッガード比較 */
+    .stagger-compare {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 30px;
+      margin-top: 30px;
+    }
+
+    .stagger-item {
+      background: #2a2a4a;
+      border-radius: 15px;
+      padding: 25px;
+      text-align: center;
+      max-width: 400px;
+    }
+
+    .stagger-item img {
+      width: 100%;
+      max-width: 350px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+    }
+
+    .stagger-label {
+      font-size: 1.6rem;
+      font-weight: bold;
+      color: #4fc3f7;
+      margin-bottom: 10px;
+    }
+
+    .stagger-desc {
+      font-size: 1.2rem;
+      color: #ccc;
+      line-height: 1.6;
+    }
+
+    .stagger-arrow {
+      font-size: 3rem;
+      color: #4fc3f7;
+    }
+
+    /* キーマップ表示 */
+    .keymap-container {
+      display: flex;
+      justify-content: center;
+      gap: 60px;
+      margin-top: 20px;
+    }
+
+    .keymap-half {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .keymap-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .keymap-row.thumb {
+      margin-top: 10px;
+      justify-content: flex-end;
+    }
+
+    .keymap-half.left .keymap-row.thumb {
+      justify-content: flex-start;
+    }
+
+    .key {
+      width: 55px;
+      height: 45px;
+      background: #3a3a5a;
+      border: 2px solid #555;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      color: #fff;
+      font-weight: bold;
+    }
+
+    .key.small {
+      width: 50px;
+      font-size: 0.8rem;
+    }
+
+    .key.mod {
+      background: #4a3a6a;
+      border-color: #9b59b6;
+      color: #d4aaff;
+    }
+
+    .key.fn {
+      background: #3a4a6a;
+      border-color: #4fc3f7;
+      color: #4fc3f7;
+      font-size: 0.75rem;
+    }
+
+    .key.nav {
+      background: #3a5a4a;
+      border-color: #2ecc71;
+      color: #2ecc71;
+    }
+
+    .key.num {
+      background: #5a4a3a;
+      border-color: #f39c12;
+      color: #f39c12;
+    }
+
+    .key.sym {
+      background: #5a3a4a;
+      border-color: #e74c3c;
+      color: #e74c3c;
+    }
+
+    .key.dim {
+      background: #2a2a3a;
+      border-color: #444;
+      color: #555;
+    }
+
+    .key.active {
+      background: #4fc3f7;
+      border-color: #4fc3f7;
+      color: #1a1a2e;
+    }
+
+    .keymap-legend {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-top: 25px;
+      font-size: 1rem;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #aaa;
+    }
+
+    .key-sample {
+      width: 20px;
+      height: 20px;
+      background: #3a3a5a;
+      border: 2px solid #555;
+      border-radius: 4px;
+    }
+
+    .key-sample.mod {
+      background: #4a3a6a;
+      border-color: #9b59b6;
+    }
+
+    .key-sample.fn {
+      background: #3a4a6a;
+      border-color: #4fc3f7;
+    }
+
+    .key-sample.nav {
+      background: #3a5a4a;
+      border-color: #2ecc71;
+    }
+
+    /* 大きいキーマップ */
+    .keymap-container.large {
+      gap: 80px;
+      margin-top: 30px;
+    }
+
+    .keymap-half .keymap-row {
+      gap: 8px;
+    }
+
+    .key.lg {
+      width: 75px;
+      height: 60px;
+      font-size: 1.4rem;
+    }
+
+    .key.lg.small {
+      font-size: 1rem;
+    }
+
+    .key.lg.fn {
+      font-size: 0.9rem;
+    }
+
+    .keymap-legend.large {
+      margin-top: 30px;
+      font-size: 1.3rem;
+      gap: 50px;
+    }
+
+    /* レイヤー画像グリッド */
+    .layer-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-top: 30px;
+    }
+
+    .layer-item {
+      text-align: center;
+    }
+
+    .layer-item img {
+      width: 100%;
+      border-radius: 10px;
+      border: 2px solid #4fc3f7;
+    }
+
+    .layer-label {
+      font-size: 1.4rem;
+      color: #4fc3f7;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- スライド1: タイトル -->
+  <div class="slide title">
+    <h1>キーボードの話</h1>
+  </div>
+
+  <!-- スライド2: 自作キーボードの世界 -->
+  <div class="slide">
+    <h1>自作キーボードの世界</h1>
+    <ul>
+      <li><strong>自作キーボード</strong>とは、パーツを選んで組み立てるキーボード</li>
+      <li>キースイッチ(押し心地、キー音が変化)、キーキャップ、ケース、基板を自由に選択</li>
+      <li>ファームウェアでキー配列を完全にカスタマイズ可能</li>
+    </ul>
+  </div>
+
+
+  <!-- スライド4: トレンドの移行 -->
+  <div class="slide">
+    <h1>トラックボール付き分割キーボードのトレンドの移行</h1>
+    <div class="timeline">
+      <div class="timeline-line"></div>
+      <div class="timeline-item origin">
+        <img src="keyball.webp" alt="Keyball">
+        <div class="timeline-node"></div>
+        <div class="timeline-label">Keyball</div>
+        <div class="timeline-desc">トラックボール分割の元祖<br>有線・QMK</div>
+      </div>
+      <div class="timeline-item">
+        <img src="roba.jpg" alt="roBa">
+        <div class="timeline-node"></div>
+        <div class="timeline-label">roBa</div>
+        <div class="timeline-desc">無線化</div>
+      </div>
+      <div class="timeline-item">
+        <img src="robaish.webp" alt="robaish">
+        <div class="timeline-node"></div>
+        <div class="timeline-label">robaish</div>
+        <div class="timeline-desc">狭ピッチ化(ロープロファイルも選択可)</div>
+      </div>
+      <div class="timeline-item">
+        <img src="moNa2.jpg" alt="moNa2">
+        <div class="timeline-node"></div>
+        <div class="timeline-label">moNa2</div>
+        <div class="timeline-desc">狭ピッチxロープロファイル</div>
+      </div>
+    </div>
+  
+    <ul style="margin-top: 20px; font-size: 1.4rem;">
+      <li><strong>狭ピッチ:</strong> キー同士の間隔が狭い（コンパクト）</li>
+      <li><strong>ロープロファイル:</strong> キーの高さが低い（薄型）</li>
+    </ul>
+  </div>
+  <!-- スライド9: 私の構成 -->
+  <div class="slide">
+    <h1>私の構成(半年前から)</h1>
+    <div class="columns">
+      <div class="left">
+        <ul style="font-size: 1.6rem; line-height: 2;">
+          <li>アームレストに<strong>マウス用アタッチメント</strong>を追加</li>
+          <li>位置を<strong>デスクに縛られない</strong>
+            <ul style="font-size: 1.4rem;"><li>椅子を引いた状態で作業可能</li></ul>
+          </li>
+          <li>デスク上にキーボードを置かなくて良い(デスクの作業スペースが広くなる)</li>
+          <li>デスクに手を伸ばさないので<strong>完全に背もたれに体重を預けられる</strong>(→筋力は低下)
+          </li>
+          <li><strong>肩が開いた状態</strong>で作業可能
+            <ul style="font-size: 1.4rem;"><li>→ 肩こり改善 普通のキーボードを使った際にかなり実感</li></ul>
+          </li>
+          <li style="font-size: 1.4rem;">これら2点で猫背防止にも</li>
+        </ul>
+      </div>
+      <div class="right">
+        <img src="mykeyboard.jpg" style="max-height: 550px; border-radius: 15px; box-shadow: 0 4px 20px rgba(79, 195, 247, 0.3);">
+      </div>
+    </div>
+  </div>
+
+  <!-- スライド5: キー配列変更の可能性 -->
+  <div class="slide">
+    <h1>キー配列変更の可能性</h1>
+    <table>
+      <tr>
+        <th>キーボード/ファームウェア</th>
+        <th>カスタマイズ性</th>
+      </tr>
+      <tr>
+        <td><strong>HHKB</strong></td>
+        <td>専用ソフトで変更可能(あんまり知らない)<br>レイヤーは2つのみで、やれることに制限あり(そう)</td>
+      </tr>
+      <tr>
+        <td><strong>QMK</strong></td>
+        <td>完全カスタマイズ、有線向け</td>
+      </tr>
+      <tr>
+        <td><strong>ZMK</strong></td>
+        <td>完全カスタマイズ、無線対応</td>
+      </tr>
+    </table>
+    <ul style="margin-top: 30px;">
+      <li>QMK/ZMKはオープンソースファームウェア</li>
+      <li>どのキーにも好きな機能を割り当て可能</li>
+      <li>レイヤー機能で少ないキーでも多機能に</li>
+    </ul>
+  </div>
+
+  <!-- スライド: QMK vs ZMK -->
+  <div class="slide">
+    <h1>QMK vs ZMK</h1>
+    <table>
+      <tr>
+        <th></th>
+        <th>QMK</th>
+        <th>ZMK</th>
+      </tr>
+      <tr>
+        <td><strong>接続方式</strong></td>
+        <td>有線（USB）</td>
+        <td>無線（Bluetooth）</td>
+      </tr>
+      <tr>
+        <td><strong>キーマップ変更ツール</strong></td>
+        <td>VIA / Remap / Vial</td>
+        <td>Keymap Editor</td>
+      </tr>
+      <tr>
+        <td><strong>設定ファイルの言語</strong></td>
+        <td>C言語(ベースの何か)</td>
+        <td>Devicetree</td>
+      </tr>
+    </table>
+    <div class="highlight-box" style="margin-top: 30px;">
+      <strong>ポイント:</strong> 無線キーボードを使いたいなら<strong>ZMK</strong>しかないが、ネットに情報が多いのは圧倒的にQMKの方。
+    </div>
+  </div>
+
+  <!-- スライド: キーマップ変更ツール -->
+  <div class="slide">
+    <h1>キーマップ変更ツール</h1>
+
+    <h2>QMK向け</h2>
+    <div class="tool-cards">
+      <div class="tool-card">
+        <img src="VIA.png" alt="VIA">
+        <div class="tool-info">
+          <div class="tool-name">VIA</div>
+          <div class="tool-desc">デスクトップアプリ<br>リアルタイム変更可能</div>
+        </div>
+      </div>
+      <div class="tool-card">
+        <img src="remap.png" alt="Remap">
+        <div class="tool-info">
+          <div class="tool-name">Remap</div>
+          <div class="tool-desc">Webブラウザで完結<br>キーマップの保存・共有</div>
+        </div>
+      </div>
+      <div class="tool-card">
+        <img src="vial.png" alt="Vial">
+        <div class="tool-info">
+          <div class="tool-name">Vial</div>
+          <div class="tool-desc">コンボ・タップダンス設定<br>オフライン対応</div>
+        </div>
+      </div>
+    </div>
+
+    <h2 style="margin-top: 40px;">ZMK向け</h2>
+    <div class="tool-cards single">
+      <div class="tool-card wide">
+        <img src="keymap_editor.png" alt="Keymap Editor">
+        <div class="tool-info">
+          <div class="tool-name">Keymap Editor</div>
+          <div class="tool-desc">Webブラウザで編集、GitHub Actionsと連携してビルド</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- スライド: キーボード本体に書き込むメリット -->
+  <div class="slide">
+    <h1>キーボード本体にキーマップを書き込むメリット</h1>
+
+    <h2>ソフトウェアでのキーマップ変更の課題</h2>
+    <ul style="font-size: 1.6rem; line-height: 1.8;">
+      <li><strong>Karabiner Elements</strong>（Mac）や<strong>PowerToys</strong>（Windows）等のソフトがあるが...</li>
+      <li>複数PC（私用・仕事用）で設定の同期が面倒</li>
+      <li>複数OS（Mac / Windows / Linux）で別々に設定が必要</li>
+      <li>会社によっては<strong>ソフトのインストールが禁止</strong>されている場合も</li>
+    </ul>
+
+    <div class="highlight-box" style="margin-top: 30px;">
+      <strong>解決策:</strong> キーボード本体にキーマップを書き込めば、<strong>どのPCに繋いでも同じ配列</strong>で使える<br>
+      特別なソフトのインストールは一切不要
+    </div>
+  </div>
+
+  <!-- スライド: OS別レイヤーで違いを吸収 -->
+  <div class="slide">
+    <h1>OS別レイヤーで違いを吸収</h1>
+
+    <h2>OSごとのショートカットの違い問題</h2>
+    <table>
+      <tr>
+        <th>操作</th>
+        <th>Mac</th>
+        <th>Windows</th>
+      </tr>
+      <tr>
+        <td>アプリ切り替え</td>
+        <td><strong>Cmd + Tab</strong></td>
+        <td><strong>Alt + Tab</strong></td>
+      </tr>
+      <tr>
+        <td>行頭に移動</td>
+        <td><strong>Ctrl + A</strong></td>
+        <td><strong>Home</strong></td>
+      </tr>
+    </table>
+
+    <h2 style="margin-top: 30px;">解決方法: OS別レイヤー</h2>
+    <ul style="font-size: 1.5rem;">
+      <li><strong>Macレイヤー</strong>と<strong>Winレイヤー</strong>を作成</li>
+      <li>同じ位置のキーに、それぞれのOSのショートカットを割り当て</li>
+      <li>接続先に応じてデフォルトレイヤーを切り替え</li>
+    </ul>
+
+    <div class="highlight-box" style="margin-top: 20px;">
+      → <strong>OSを意識せず、同じボタンで同じ動作</strong>を実現！
+    </div>
+  </div>
+<div class="slide">
+    <h1>レイヤーという考え方</h1>
+    <ul>
+      <li><strong>レイヤー</strong> = キーの役割を切り替える「層」</li>
+      <li>特定のキーを押している間だけ、別のキー配列に切り替わる</li>
+      <li>少ないキー数でも多くの機能を実現できる</li>
+    </ul>
+    <h2 style="margin-top: 40px;">例：40キーでも困らない理由</h2>
+    <table>
+      <tr>
+        <th>レイヤー</th>
+        <th>用途</th>
+      </tr>
+      <tr>
+        <td><strong>Layer 0</strong></td>
+        <td>通常の文字入力（QWERTY等）</td>
+      </tr>
+      <tr>
+        <td><strong>Layer 1</strong></td>
+        <td>数字・記号（1234...、!@#$...）</td>
+      </tr>
+      <tr>
+        <td><strong>Layer 2</strong></td>
+        <td>矢印キー・ナビゲーション</td>
+      </tr>
+      <tr>
+        <td><strong>Layer 3</strong></td>
+        <td>ファンクションキー・メディア操作</td>
+      </tr>
+    </table>
+  </div>
+
+  
+  <!-- スライド6: 配列を変えられることの良さ -->
+  <div class="slide">
+    <h1>配列を変えられることの良さ</h1>
+    <ul>
+      <li><strong>ホームポジションから手を動かさない</strong>
+        <ul><li>矢印キー、マウス操作もホームポジションで</li></ul>
+      </li>
+      <li><strong>自分だけの最適解</strong>を追求できる</li>
+      <li>よく使うキーを打ちやすい位置に配置</li>
+      <li><strong>レイヤー</strong>で1つのキーに複数の役割</li>
+      <li>小指の負担軽減（Ctrl、Shift等の配置変更）</li>
+    </ul>
+  </div>
+
+  <!-- スライド: レイヤーという考え方 -->
+  <!-- スライド8: 購入方法 -->
+  <div class="slide">
+    <h1>購入方法</h1>
+    <table>
+      <tr>
+        <th>購入先</th>
+        <th>特徴</th>
+      </tr>
+      <tr>
+        <td><strong>遊舎工房オンライン</strong></td>
+        <td>+8,000円で組み立て代行も依頼可能</td>
+      </tr>
+      <tr>
+        <td><strong>遊舎工房 実店舗</strong></td>
+        <td>キースイッチの感触を実際に試せる 店が狭い</td>
+      </tr>
+      <tr>
+        <td><strong>BOOTH</strong></td>
+        <td>作者からキットや組み立て済みを直接購入(倍率高め。大体品切れ)</td>
+      </tr>
+      <tr>
+        <td><strong>メルカリ</strong></td>
+        <td>作者からキットや組み立て済みを直接購入、中古や組み立て代行品も多い</td>
+      </tr>
+      <tr>
+        <td><strong>X</strong></td>
+        <td>作者がX上で販売、プレゼント、DMでの個人取引</td>
+      </tr>
+    </table>
+  </div>
+
+
+  <!-- スライド10: 私のキー配列 -->
+  <div class="slide">
+    <h1>私のキー配列</h1>
+    <div class="layer-grid">
+      <div class="layer-item">
+        <img src="win_layer.png" alt="Windows Layer">
+        <div class="layer-label">Windows Layer</div>
+      </div>
+      <div class="layer-item">
+        <img src="mac_layer.png" alt="Mac Layer">
+        <div class="layer-label">Mac Layer</div>
+      </div>
+      <div class="layer-item">
+        <img src="arrow_layer.png" alt="Arrow Layer">
+        <div class="layer-label">Arrow Layer</div>
+      </div>
+      <div class="layer-item">
+        <img src="num_layer.png" alt="Num Layer">
+        <div class="layer-label">Num Layer</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- スライド: コンボ -->
+  <div class="slide">
+    <h1>コンボ（同時押し）</h1>
+    <p style="font-size: 1.6rem; margin-bottom: 20px;">複数のキーを同時に押すと特定の動作(定義したbehavior)を実行</p>
+    <div class="layer-grid">
+      <div class="layer-item">
+        <img src="tab_combo.png" alt="Tab Combo">
+        <div class="layer-label">Tab</div>
+      </div>
+      <div class="layer-item">
+        <img src="bracket_combo.png" alt="Bracket Combo">
+        <div class="layer-label">()を入力してカーソルを中に移動させる</div>
+      </div>
+      <div class="layer-item">
+        <img src="toggle_win_combo.png" alt="Toggle Win Combo">
+        <div class="layer-label">Windowsに切り替え</div>
+      </div>
+      <div class="layer-item">
+        <img src="toggle_mac_combo.png" alt="Toggle Mac Combo">
+        <div class="layer-label">Macに切り替え</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- スライド3: カラムスタッガードとは -->
+  <div class="slide">
+    <h1>カラムスタッガードとは</h1>
+    <div class="stagger-compare">
+      <div class="stagger-item">
+        <img src="LowStaggers.jpg" alt="ロウスタッガード">
+        <div class="stagger-label">ロウスタッガード（通常）</div>
+        <div class="stagger-desc">横方向にずれている<br>タイプライターのアーム（活字棒）が干渉しないための設計の名残</div>
+      </div>
+      <div class="stagger-arrow">→</div>
+      <div class="stagger-item">
+        <img src="ColumnStaggers.jpg" alt="カラムスタッガード">
+        <div class="stagger-label">カラムスタッガード</div>
+        <div class="stagger-desc">縦の列が指の長さに合わせてずれている<br>指の自然な動きに沿った配置</div>
+      </div>
+    </div>
+    <div class="highlight-box" style="margin-top: 30px;">
+      <strong>慣れるまでの壁:</strong> XとCを無限に打ち間違える日々...<br>
+      でも1週間で慣れます。逆に広く普及してる普通の配列には戻れなくなるので一長一短。
+    </div>
+  </div>
+  <!-- スライド10: まとめ -->
+  <div class="slide">
+    <h1>半年使ってみた感想</h1>
+    <ul>
+      <li>bluetoothの接続先をワンタップで切り替えられるのが思いの外便利</li>
+      <ul><li>macでアラートが出たので見つつ問題なかったらwindows/linux PCに戻るとか</li></ul>
+      <li>現状人気なトラボ付き分割無線は個人販売が主なため購入難易度高め</li>
+      <li>高度なマクロを組もうと思ったら設定ファイルを自分でカキカキする必要がある</li>
+        <ul><li>だが、大体AIで解決する(うごきゃいいし)</li></ul>
+      <li>慣れるまで大変だと思われがちだが、自分が一番自然だと思う配置にすればいいので実は認知負荷は低くすぐ慣れる</li>
+      <li>自分が考える最強の配列への道は遠い。</li>
+      <ul><li>QWERTY配列自体からの脱却はまだできてない(怖い)</li></ul>
+      <li>OSレベルのショートカットを全く覚えなくていいのが最高</li>
+      <ul><li>PCのリプレースや環境移行時にOS側はデフォルトショートカット設定で良いので楽</li></ul>
+    <div class="highlight-box" style="margin-top: 30px;">
+      <strong>総評: 自分の思い通りの動きをできる/させられるキーボード。カスタマイズ好きにはおすすめ。(vimとかvscodeの設定凝ってる人とか)</strong>
+    </div>
+    </ul>
+  </div>
+
+</body>
+</html>
